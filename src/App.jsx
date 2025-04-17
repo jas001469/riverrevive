@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 function App() {
   const [selectedJunction, setSelectedJunction] = useState(1); // Default to Junction 1
   const [currentTime, setCurrentTime] = useState(new Date()); // State for current time
+  const [isDarkMode, setIsDarkMode] = useState(true); // State for dark/light mode
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -49,9 +50,9 @@ function App() {
   };
 
   const containerStyle = {
-    backgroundColor: '#0E1323',
+    backgroundColor: isDarkMode ? '#0E1323' : '#FFFFFF',
     minHeight: '100vh',
-    color: '#FFFFFF',
+    color: isDarkMode ? '#FFFFFF' : '#000000',
     fontFamily: 'Arial, sans-serif',
     padding: '20px',
   };
@@ -64,7 +65,7 @@ function App() {
   };
 
   const cardStyle = {
-    backgroundColor: '#1E2333',
+    backgroundColor: isDarkMode ? '#1E2333' : '#f0f0f0',
     borderRadius: '12px',
     padding: '20px',
     flex: 1,
@@ -79,7 +80,7 @@ function App() {
   };
 
   const smallText = {
-    color: '#aaa',
+    color: isDarkMode ? '#aaa' : '#333',
     fontSize: '12px',
   };
 
@@ -117,6 +118,19 @@ function App() {
             timeStyle: 'short'
           })}
         </div>
+        <button 
+          style={{
+            padding: '8px 12px',
+            background: isDarkMode ? '#FFFFFF' : '#0E1323',
+            color: isDarkMode ? '#000000' : '#FFFFFF',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+          }}
+          onClick={() => setIsDarkMode(!isDarkMode)}
+        >
+          {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+        </button>
       </div>
 
       {/* Top Stats */}
@@ -147,11 +161,11 @@ function App() {
           <div style={{ 
             height: '150px', 
             marginTop: '10px', 
-            backgroundColor: '#2a3547', 
+            backgroundColor: isDarkMode ? '#2a3547' : '#e0e0e0', 
             borderRadius: '8px',
             position: 'relative',
             overflow: 'hidden',
-            background: 'linear-gradient(160deg, #1a3d7a, #4a8fe7)' 
+            background: isDarkMode ? 'linear-gradient(160deg, #1a3d7a, #4a8fe7)' : 'linear-gradient(160deg, #85c0f5, #c8e1f5)' 
           }}>
             {/* River Path */}
             <div style={{
@@ -201,9 +215,9 @@ function App() {
               marginTop: '10px', 
               width: '100%', 
               padding: '8px', 
-              backgroundColor: '#2B2F42', 
+              backgroundColor: isDarkMode ? '#2B2F42' : '#f0f0f0', 
               border: 'none', 
-              color: 'white' 
+              color: isDarkMode ? 'white' : 'black' 
             }}
             value={selectedJunction}
             onChange={(e) => setSelectedJunction(parseInt(e.target.value))}
@@ -236,20 +250,20 @@ function App() {
       </div>
 
       {/* Warning - dynamic based on selected junction */}
-      <div style={{ 
-        ...cardStyle, 
-        backgroundColor: '#2B2F42', 
-        color: '#f4c430', 
-        textAlign: 'center' 
-      }}>
-        {selectedJunction === 3 ? (
-          <span>⚠️ Critical: Junction 3 (Okhla) has high pollution levels. Immediate action recommended.</span>
-        ) : selectedJunction === 2 ? (
-          <span>⚠️ Warning: Junction 2 (Nizamuddin) requires maintenance within 24 hours.</span>
-        ) : (
-          <span>⚠️ 3 filters predicted to clog within 6 hours. Pre-emptive cleaning recommended.</span>
-        )}
-      </div>
+<div style={{ 
+  ...cardStyle, 
+  backgroundColor: isDarkMode ? '#2B2F42' : '#f0f0f0', 
+  color: '#ff0000', // Set text color to red
+  textAlign: 'center' 
+}}>
+  {selectedJunction === 3 ? (
+    <span>⚠️ Critical: Junction 3 (Okhla) has high pollution levels. Immediate action recommended.</span>
+  ) : selectedJunction === 2 ? (
+    <span>⚠️ Warning: Junction 2 (Nizamuddin) requires maintenance within 24 hours.</span>
+  ) : (
+    <span>⚠️ 3 filters predicted to clog within 6 hours. Pre-emptive cleaning recommended.</span>
+  )}
+</div>
 
       {/* Bottom Graphs */}
       <div style={rowStyle}>
@@ -257,7 +271,7 @@ function App() {
           <div style={smallText}>Choke %</div>
           <div style={{ 
             height: '100px', 
-            backgroundColor: '#2B2F42', 
+            backgroundColor: isDarkMode ? '#2B2F42' : '#f0f0f0', 
             borderRadius: '6px', 
             marginTop: '10px', 
             textAlign: 'center', 
@@ -280,7 +294,7 @@ function App() {
           <div style={smallText}>Flow Rate (L/min)</div>
           <div style={{ 
             height: '100px', 
-            backgroundColor: '#2B2F42', 
+            backgroundColor: isDarkMode ? '#2B2F42' : '#f0f0f0', 
             borderRadius: '6px', 
             marginTop: '10px', 
             textAlign: 'center', 
@@ -308,7 +322,7 @@ function App() {
           <div style={smallText}>Turbidity (NTU)</div>
           <div style={{ 
             height: '100px', 
-            backgroundColor: '#2B2F42', 
+            backgroundColor: isDarkMode ? '#2B2F42' : '#f0f0f0', 
             borderRadius: '6px', 
             marginTop: '10px', 
             textAlign: 'center', 
