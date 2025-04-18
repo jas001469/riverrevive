@@ -19,21 +19,54 @@ function App() {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState(null);
+  const [backendStatus, setBackendStatus] = useState('checking');
+
+  // Check backend health
+  useEffect(() => {
+    const checkBackendHealth = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/health');
+        if (response.ok) {
+          setBackendStatus('connected');
+        } else {
+          setBackendStatus('error');
+        }
+      } catch (error) {
+        setBackendStatus('error');
+      }
+    };
+
+    checkBackendHealth();
+    const interval = setInterval(checkBackendHealth, 30000); // Check every 30 seconds
+    return () => clearInterval(interval);
+  }, []);
 
   // Fetch sensor data and predictions every 5 seconds
   useEffect(() => {
     const fetchData = async () => {
+      if (backendStatus !== 'connected') {
+        setError('Backend server not connected');
+        return;
+      }
+
       try {
-        setIsLoading(true);
         setError(null);
+        setIsLoading(true);
         
         // Fetch sensor data
         const sensorResponse = await fetch('http://localhost:8000/sensor-data');
         if (!sensorResponse.ok) {
           throw new Error(`Sensor data error: ${sensorResponse.status}`);
         }
-        const sensorData = await sensorResponse.json();
-        setSensorData(sensorData);
+        const newSensorData = await sensorResponse.json();
+        
+        // Validate sensor data
+        if (!newSensorData || typeof newSensorData !== 'object') {
+          throw new Error('Invalid sensor data format');
+        }
+
+        // Always update sensor data to ensure fresh values
+        setSensorData(newSensorData);
         setLastUpdate(new Date());
 
         // Get prediction from ML model
@@ -42,7 +75,7 @@ function App() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(sensorData)
+          body: JSON.stringify(newSensorData)
         });
         
         if (!predictionResponse.ok) {
@@ -64,10 +97,15 @@ function App() {
       }
     };
 
+    // Initial fetch
     fetchData();
+    
+    // Set up interval for subsequent fetches
     const interval = setInterval(fetchData, 5000);
+    
+    // Cleanup interval on component unmount
     return () => clearInterval(interval);
-  }, []);
+  }, [backendStatus]); // Only depend on backendStatus
 
   // Update time every second
   useEffect(() => {
@@ -192,6 +230,12 @@ function App() {
             dateStyle: 'medium',
             timeStyle: 'short'
           })}
+        </div>
+        <div style={{
+          ...smallText,
+          color: backendStatus === 'connected' ? '#00ff00' : '#ff0000'
+        }}>
+          Status: {backendStatus === 'connected' ? '🟢 Connected' : '🔴 Disconnected'}
         </div>
         <div style={smallText}>
           Last Update: {lastUpdate ? lastUpdate.toLocaleTimeString() : 'Never'}
